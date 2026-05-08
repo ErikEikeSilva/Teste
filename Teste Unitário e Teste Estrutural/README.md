@@ -1,81 +1,75 @@
-# Secure Login API
+Secure Login API
+A lightweight, educational Node.js API for login validation, demonstrating unit testing with Jest. This project provides a clean, testable implementation of basic credential validation logic.
 
-Este projeto é uma API simples de validação de login, desenvolvida para fins educacionais. Ele demonstra como implementar uma função de validação de login básica em Node.js, utilizando testes unitários com Jest.
+Overview
+This API implements a single validation function (validateLogin) that checks email format and password length requirements. It's designed as a learning resource for:
 
-## Fluxo Completo de Desenvolvimento
+Basic input validation strategies
 
-Aqui está o fluxo completo desde a inicialização do projeto até a execução dos testes. Este guia assume que você está começando do zero.
+Unit testing with Jest
 
-### Caso de Teste: senha muito curta
+Node.js module structure and organization
 
-- Objetivo: validar o tratamento de senha com menos de 6 caracteres.
-- Tipo: teste unitário
-- Função testada: `validateLogin(email, password)`
-- Entrada:
-  - email: `usuario@email.com`
-  - senha: `12345`
-- Resultado esperado:
-  - `success: false`
-  - `message: 'Senha deve ter no mínimo 6 caracteres'`
-- O que está testando:
-  - validação de tamanho mínimo da senha
-- O que não está testando:
-  - autenticação real contra banco de dados
-  - política de senha especial (caracteres, letras maiúsculas, etc.)
+Development Workflow
+Complete step-by-step guide from project initialization to test execution.
 
-### 1. Inicialização do Projeto
+Test Case Example: Short Password
+Objective: Validate error handling for passwords shorter than 6 characters
 
-Execute o comando `npm init -y` para criar um arquivo `package.json` com configurações padrão:
+Type: Unit test
 
-```bash
+Function under test: validateLogin(email, password)
+
+Input:
+
+Email: usuario@email.com
+
+Password: 12345
+
+Expected output:
+
+success: false
+
+message: 'Password must be at least 6 characters'
+
+Scope: Validates minimum password length enforcement
+Out of scope: Database authentication, password complexity rules (uppercase, special characters, etc.)
+
+1. Project Initialization
+Create a package.json file with default settings:
+
+bash
 npm init -y
-```
+2. Install Dependencies
+Add Jest as a development dependency:
 
-Isso cria um arquivo `package.json` básico com informações do projeto.
-
-### 2. Instalação das Dependências
-
-Instale o Jest como dependência de desenvolvimento para testes:
-
-```bash
+bash
 npm install --save-dev jest
-```
+3. Configure Jest
+Add the test script to package.json:
 
-### 3. Configuração do Jest
-
-No `package.json`, adicione o script de teste:
-
-```json
+json
 {
   "scripts": {
     "test": "jest"
   }
 }
-```
-
-### 4. Estrutura do Projeto
-
-Crie a estrutura de pastas:
-
-```
+4. Project Structure
+text
 securelogin-api/
 ├── package.json
 ├── src/
 │   ├── login.js
 │   └── utils/
-│       └── login.js (vazio por enquanto)
+│       └── login.js
 ├── tests/
 │   └── login.test.js
 └── README.md
-```
+5. Validation Function Implementation
+src/login.js:
 
-### 5. Implementação da Função de Validação
-
-No arquivo `src/login.js`, implemente a função `validateLogin`:
-
-```javascript
+javascript
 function validateLogin(email, password) {
-  // .trim() remove espaços acidentais no início/fim
   const cleanEmail = email?.toString().trim();
   const cleanPassword = password?.toString();
 
@@ -83,33 +77,28 @@ function validateLogin(email, password) {
     return { success: false, message: 'E-mail é obrigatório' };
   }
 
-  // Validação básica de formato de e-mail
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(cleanEmail)) {
     return { success: false, message: 'E-mail inválido' };
   }
 
   if (!cleanPassword || cleanPassword.length < 6) {
-    return { success: false, message: 'Senha é obrigatória' };
+    return { success: false, message: 'Senha deve ter no mínimo 6 caracteres' };
   }
 
-  // Simulação de validação bem-sucedida (em um projeto real, verificaríamos no banco de dados)
   return { success: true, message: 'Login válido' };
 }
 
 module.exports = { validateLogin };
-```
+6. Unit Tests
+tests/login.test.js:
 
-### 6. Escrita dos Testes
-
-No arquivo `tests/login.test.js`, escreva os testes unitários:
-
-```javascript
+javascript
 const { validateLogin } = require('../src/login');
 
 describe('validateLogin()', () => {
   
-  describe('Cenários de Erro (Negative Tests)', () => {
+  describe('Error Scenarios (Negative Tests)', () => {
     
     test.each([
       ['', '123456', 'E-mail é obrigatório'],
@@ -117,7 +106,7 @@ describe('validateLogin()', () => {
       ['usuario.com', '123456', 'E-mail inválido'],
       ['usuario@email.com', '', 'Senha é obrigatória'],
       ['usuario@email.com', '123', 'Senha deve ter no mínimo 6 caracteres'],
-    ])('Deve retornar erro para email="%s" e senha="%s"', (email, password, expectedMsg) => {
+    ])('Returns error for email="%s", password="%s"', (email, password, expectedMsg) => {
       const result = validateLogin(email, password);
       expect(result).toEqual({
         success: false,
@@ -127,9 +116,9 @@ describe('validateLogin()', () => {
 
   });
 
-  describe('Cenários de Sucesso (Positive Tests)', () => {
+  describe('Success Scenarios (Positive Tests)', () => {
     
-    test('Deve validar com sucesso para dados corretos', () => {
+    test('Validates successfully for correct credentials', () => {
       const result = validateLogin('hudson@provedor.com', 'senha123');
       expect(result.success).toBe(true);
       expect(result.message).toBe('Login válido');
@@ -138,62 +127,55 @@ describe('validateLogin()', () => {
   });
 
 });
-```
+7. Run Tests
+Execute the test suite:
 
-### 7. Execução dos Testes
-
-Execute os testes com o comando:
-
-```bash
+bash
 npm test
-```
+Test Coverage
+Validated Scenarios
+Error Cases:
 
-Isso executará todos os testes definidos e mostrará os resultados no terminal.
+Empty or null email → "E-mail é obrigatório"
 
-## O que Está Sendo Testado
+Invalid email format (missing @ or domain) → "E-mail inválido"
 
-Os testes cobrem os seguintes cenários:
+Empty password → "Senha é obrigatória"
 
-- **Cenários de Erro (Negative Tests):**
-  - E-mail vazio ou nulo: Deve retornar "E-mail é obrigatório".
-  - E-mail com formato inválido (sem @ ou domínio): Deve retornar "E-mail inválido".
-  - Senha vazia: Deve retornar "Senha é obrigatória".
-  - Senha com menos de 6 caracteres: Deve retornar "Senha deve ter no mínimo 6 caracteres".
+Password shorter than 6 characters → "Senha deve ter no mínimo 6 caracteres"
 
-- **Cenários de Sucesso (Positive Tests):**
-  - E-mail válido e senha com 6 ou mais caracteres: Deve retornar sucesso com "Login válido".
+Success Cases:
 
-Esses testes garantem que a função `validateLogin` se comporte corretamente para entradas válidas e inválidas.
+Valid email + password length ≥ 6 characters → success with "Login válido"
 
-## O que Não Está Sendo Testado
+What Is Not Tested
+This project focuses exclusively on unit testing the validation logic. The following areas remain outside scope:
 
-Este projeto é focado em testes unitários da função de validação. O que **não** está sendo testado inclui:
+Area	Reason
+Database Integration	Validation is simulated; no actual persistence layer
+Edge Cases	Extremely long emails, special characters in passwords, injection attacks
+Performance	No load testing or benchmark validation
+Advanced Security	Password hashing, JWT authentication, rate limiting
+HTTP Endpoints	No API routes or request/response handling
+System Error Handling	Network failures, filesystem errors (sync function only)
+Internationalization	Error messages in Portuguese only
+Concurrent Requests	No thread-safety or race condition testing
+Production implementations would require expanded test coverage for all the above areas.
 
-- **Integração com Banco de Dados:** A função simula a validação, mas não conecta a um banco real. Não há testes de integração com sistemas externos.
-- **Casos de Borda Extremos:** Por exemplo, e-mails muito longos, senhas com caracteres especiais, ou ataques como SQL injection (embora a função use regex básica).
-- **Performance:** Não há testes de carga ou performance para grandes volumes de validações.
-- **Segurança Avançada:** Não testa hashing de senhas, autenticação JWT, ou outras medidas de segurança.
-- **Interface de API:** Não há testes de endpoints HTTP ou rotas de API (o projeto é apenas uma função utilitária).
-- **Tratamento de Erros do Sistema:** Como falhas de rede ou erros internos, já que é uma função síncrona simples.
-- **Internacionalização:** Mensagens de erro estão em português, sem testes para múltiplos idiomas.
+Usage
+Import and use the validation function in your project:
 
-Para um projeto real, seria necessário expandir os testes para cobrir esses aspectos.
-
-## Como Usar
-
-Para usar a função em outro projeto:
-
-```javascript
+javascript
 const { validateLogin } = require('./src/login');
 
-const result = validateLogin('usuario@email.com', 'senha123');
+const result = validateLogin('user@example.com', 'securepass123');
 if (result.success) {
-  console.log('Login bem-sucedido!');
+  console.log('Authentication successful');
 } else {
-  console.log('Erro:', result.message);
+  console.error('Validation failed:', result.message);
 }
-```
+Contributing
+This is an educational project focused on testing best practices. Contributions that improve test coverage, add edge cases, or enhance documentation are welcome.
 
-## Contribuição
-
-Este é um projeto educacional. Sinta-se à vontade para sugerir melhorias nos testes ou na implementação.
+License
+Educational purposes only — no license implied for production use.
